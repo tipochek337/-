@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Статистика обслуживания смартфонов</title>
+    <script>
+      async function fetchSmartphones() {
+        const response = await fetch("/smartphones");
+        const smartphones = await response.json();
+        const smartphoneList = document.getElementById("smartphone-list");
+        smartphoneList.innerHTML = "";
+        smartphones.forEach((phone) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = `Номер: ${phone.number}, Модель: ${phone.model}, Проблема: ${phone.problem}`;
+          smartphoneList.appendChild(listItem);
+        });
+      }
+
+      async function fetchStats() {
+        const response = await fetch("/smartphones/stats");
+        const stats = await response.json();
+        document.getElementById("num-completed").textContent =
+          stats.num_completed;
+        document.getElementById("mean-time").textContent =
+          stats.mean_time.toFixed(2);
+        const problemStats = document.getElementById("problem-stats");
+        problemStats.innerHTML = "";
+        for (const [problem, count] of Object.entries(stats.problem_stats)) {
+          const listItem = document.createElement("li");
+          listItem.textContent = `${problem}: ${count}`;
+          problemStats.appendChild(listItem);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchSmartphones();
+        fetchStats();
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Статистика обслуживания смартфонов</h1>
+
+    <div>
+      <h2>Список смартфонов</h2>
+      <ul id="smartphone-list"></ul>
+    </div>
+
+    <div>
+      <h2>Статистика</h2>
+      <p>Количество выполненных заявок: <span id="num-completed">0</span></p>
+      <p>
+        Среднее время выполнения заявки: <span id="mean-time">0</span> секунд
+      </p>
+      <h3>Статистика по типам неисправностей:</h3>
+      <ul id="problem-stats"></ul>
+    </div>
+  </body>
+</html>
